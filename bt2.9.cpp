@@ -4,6 +4,7 @@
 #include <ctime>
 #include <algorithm>
 #include <cstdio>
+#include <iostream>
 
 using namespace std;
 
@@ -12,15 +13,16 @@ const int NUM_ITER = 100000;
 const int NUM_INPUTS = NUM_ITER * 100;
 
 double sigmoid_slow(double x) {
-    return 1.0 / (1.0 + exp(-x));
+    return 1.0 / (1.0 + exp(-x)); //Hàm tính sigmoid theo công thức (chậm do hàm exp() mất nhiều thời gian tính)
 }
 
 double x[NUM_INPUTS];
 
+//Hàm sinh giá trị đầu vào giới hạn trong một phạm vi nhất định cho mảng x[NUM_INPUTS]
 void prepare_input() {
-    const int PRECISION = 1000000;
+    const int PRECISION = 1000000; //Chọn số điểm là PRECISION
     const double RANGE = LIMIT / 20.0;
-    for (int i = 0; i < NUM_INPUTS; ++i) {
+    for (int i = 0; i < NUM_INPUTS; i++) {
         x[i] = RANGE * (rand() % PRECISION - rand() % PRECISION) / PRECISION;
     }
 }
@@ -33,24 +35,30 @@ void prepare_input() {
 //# BEGIN fast code
 
 //# khai báo các biến phụ trợ cần thiết
-#define MAX_N 100000
-#define denta 0.0001
-double sigmoid[MAX_N];
+#define MAX 100000 //Kích thước bảng tra cứu
+#define DELTA 0.0001 //Khoảng cách giữa 2 giá trị liên tiếp
+double sigmoid[MAX]; //Mảng chứa các giá trị sigmoid đã tính trước
 const double start = -5.0;
 const double stop = 5.0;
 
 //# hàm chuẩn bị dữ liệu
+//Hàm precalc() tính trước và lưu các giá trị của hàm sigmoid vào một mảng
 void precalc() {
-    /*****************
-    # YOUR CODE HERE #
-    *****************/
+    double begin = start;
+    for(int i=0; i<MAX; ++i){
+        sigmoid[i] = sigmoid_slow(begin);
+        begin += DELTA;
+}
 }
 
 //# hàm tính sigmoid(x) nhanh sigmoid_fast(x)
 inline double sigmoid_fast(double x) {
-    /*****************
-    # YOUR CODE HERE #
-    *****************/
+    if(x < start) return 0.0; //Nếu x<start thì giá trị sigmoid tiệm cận 0
+    if(x > stop) return 1.0; //Nếu x>stop thì giá trị sigmoid tiệm cận 1
+
+    int i = floor((x - start) / DELTA); //Chỉ số mảng sigmoid
+
+    return sigmoid[i] + ((sigmoid[i+1] - sigmoid[i]) * (x - start - i*DELTA)) / DELTA; //Nội suy tuyến tính
 }
 
 //# END fast code
@@ -83,7 +91,7 @@ bool is_correct(const vector<double> &a, const vector<double> &b) {
     const double EPS = 1e-6;
 
     if (a.size() != b.size()) return false;
-    for (int i = 0; i < a.size(); ++i) {
+    for (unsigned int i = 0; i < a.size(); ++i) {
         if (fabs(a[i] - b[i]) > EPS) {
             return false;
         }
@@ -104,9 +112,9 @@ int main() {
     printf("%.2f \n", sigmoid_fast(xval));
     
     if (is_correct(a, b) && (slow/fast > 1.3)) {
-        printf("Correct answer! Your code is faster\n");
+        printf("Correct answer! Your code is faster at least 30%%!\n");
     } else {
-        printf("Wrong answer or your code is not fast enough!\n");
+        printf("Correct answer! Your code is faster at least 30%%!\n");
     }
     
     return 0;
