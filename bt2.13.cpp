@@ -33,7 +33,7 @@ void input(bigNum &num1, bigNum &num2){
 }
 
 //Hàm cộng hai số nguyên lớn
-void add(char res[], char* num1, char* num2){
+void add(char res[], char *num1, char *num2){
     int c = 0;
 
     for(int i=100; i>=0; i--){
@@ -54,7 +54,8 @@ void sub(char res[], char* num1, char* num2){
         if(temp1 >= temp2 + c){
             res[i] = temp1 - temp2 - c + 48;
             c = 0; //Số bị trừ lớn hơn số trừ thì biến nhớ bằng 0
-        } else {
+        } 
+        else {
             temp1 = temp1 + 10;
             res[i] = temp1 - temp2 - c + 48;
             c = 1; //Số bị trừ nhỏ hơn số trừ thì biến nhớ bằng 1
@@ -64,50 +65,48 @@ void sub(char res[], char* num1, char* num2){
 
 //Hàm nhân hai số nguyên lớn
 void multi(char res[], char *num1, char *num2){
-    // clear array res
-    for(int i=0; i<101; i++) res[i] = '0';
+    for(int i=0; i<101; i++) res[i] = '0'; //Xóa mảng res
 
     for(int i=100; i>=0; i--){
-        // init 1 array temp
-        char tmp[101];
+        char temp[101];
 
-        // add i number 0 to last array
         int k;
         for(k = 0; k < i; k++)
-            tmp[100-k] = '0';
+            temp[100-k] = '0'; //Thêm các số 0 vào cuối mảng
 
         int c = 0, sum = 0;
         for(int j=100; j>=0; j--){
             sum = ((int)num1[i] - 48) * ((int)num2[j] - 48) + c;
-            tmp[k] = (sum % 10) + 48;
-            c = sum / 10;
-            k--; if(k < 0) break;
+            temp[k] = (sum % 10) + 48; //Giá trị ô tương ứng là giá trị hàng đơn vị kết quả nhân
+            c = sum / 10; //Biến nhớ là kết giá trị số ở hàng lớn nhất
+            k--; 
+            if(k < 0) break;
         }
 
-        add(res,tmp,res);
+        add(res,temp,res);
     }
 }
 
-// check number1 >= number2
+//Hàm kiếm tra xem num1 có lớn hơn num2 hay không
 bool check(char *num1, char *num2){
-    int foo1, foo2;
-    for(foo1 = 0; foo1 < 101; foo1++){
-        if(num1[foo1] != '0') break;
+    int start1, start2;
+    for(start1 = 0; start1 < 101; start1++){
+        if(num1[start1] != '0') break; //Tìm đến vị trí của hàng lớn nhất số nguyên lớn lưu trong mảng num1
     }
 
-    for(foo2 = 0; foo2 < 101; foo2++){
-        if(num2[foo2] != '0') break;
+    for(start2 = 0; start2 < 101; start2++){
+        if(num2[start2] != '0') break; //Tìm đến vị trí của hàng lớn nhất số nguyên lớn lưu trong mảng num2
     }
 
-    if(foo1 > foo2) return false;
-    else if(foo1 < foo2) return true;
-    else { // foo1 == foo2
-        int foo = foo1;
-        while(foo < 101){
-            if(num1[foo] < num2[foo]) return false;
-            else if (num1[foo] > num2[foo]) return true;
+    if(start1 > start2) return false; //Vị trí của chữ số ở hàng lớn nhất trong mảng 1 lớn hơn so với mảng 2 thì num1 < num2
+    else if(start1 < start2) return true; //Ngược lại num1 > num2
+    else { //rường hợp num1 và num2 có cùng số chữ số
+        int t = start1;
+        while(t < 101){
+            if(num1[t] < num2[t]) return false;
+            else if (num1[t] > num2[t]) return true;
             else {
-                foo++;
+                t++;
             }
         }
     }
@@ -115,15 +114,16 @@ bool check(char *num1, char *num2){
     return true;
 }
 
-// overloading operator "+"
+//Đa năng hóa toán tử +
 bigNum operator + (bigNum num1, bigNum num2){
     bigNum res;
 
-    if(num1.sign == '1' && num2.sign == '1'){
+    if(num1.sign == '1' && num2.sign == '1'){//Hai số âm
         res.sign = '1';
         add(res.num,num1.num,num2.num);
         return res;
-    } else if(num1.sign == '1' && num2.sign == '0'){
+    } 
+    else if(num1.sign == '1' && num2.sign == '0'){//Num1<0, num2>0
         if(check(num1.num,num2.num)){
             res.sign = '1';
             sub(res.num,num1.num,num2.num);
@@ -133,7 +133,8 @@ bigNum operator + (bigNum num1, bigNum num2){
             sub(res.num,num2.num,num1.num);
             return res;
         }
-    } else if(num1.sign == '0' && num2.sign == '1'){
+    } 
+    else if(num1.sign == '0' && num2.sign == '1'){//num1>0, num2<0
         if(check(num1.num,num2.num)){
             res.sign = '0';
             sub(res.num,num1.num,num2.num);
@@ -143,66 +144,75 @@ bigNum operator + (bigNum num1, bigNum num2){
             sub(res.num,num2.num,num1.num);
             return res;
         }
-    } else {
+    } 
+    else {//Hai số dương
         res.sign = '0';
         add(res.num,num1.num,num2.num);
         return res;
     }
 }
 
+//Đa năng hóa toán tử -
 bigNum operator - (bigNum num1, bigNum num2){
     bigNum res;
 
-    if(num1.sign == '1' && num2.sign == '0'){
+    if(num1.sign == '1' && num2.sign == '0'){ //Num1<0, num2>0
         num2.sign = '1';
         res = num1 + num2;
         return res;
-    } else if(num1.sign == '1' && num2.sign == '1'){
+    }
+     else if(num1.sign == '1' && num2.sign == '1'){//Hai số âm
         num2.sign = '0';
         res = num1 + num2;
         return res;
-    } else if(num1.sign == '0' && num2.sign == '1'){
+    }
+     else if(num1.sign == '0' && num2.sign == '1'){//num1>0, num2<0
         num2.sign = '0';
         res = num1 + num2;
         return res;
-    } else {
+    } 
+    else {//Hai số dương
         num2.sign = '1';
         res = num1 + num2;
         return res;
     }
 }
 
+//Đa năng hóa toán tử *
 bigNum operator * (bigNum num1, bigNum num2){
     bigNum res;
 
-    if(num1.sign == '1' && num2.sign == '1'){
+    if(num1.sign == '1' && num2.sign == '1'){//Hai số âm
         res.sign = '1';
         multi(res.num,num1.num,num2.num);
         return res;
-    } else if(num1.sign == '1' && num2.sign == '0'){
+    } 
+    else if(num1.sign == '1' && num2.sign == '0'){//num1<0, num2>0
         res.sign = '0';
         multi(res.num,num1.num,num2.num);
         return res;
-    } else if(num1.sign == '0' && num2.sign == '1'){
+    } 
+    else if(num1.sign == '0' && num2.sign == '1'){//num1>0, num2<0
         res.sign = '0';
         multi(res.num,num1.num,num2.num);
         return res;
-    } else {
+    } 
+    else {//Hai số dương
         res.sign = '1';
         multi(res.num,num1.num,num2.num);
         return res;
     }
 }
 
-// print bignumber
+//Hàm in ra mảng số nguyên lớn
 void printBigNumber(bigNum number){
     cout << number.sign;
-    int start;
-    for(start=0; start<101; start++)
-        if(number.num[start] != '0') break;
+    int i;
+    for(i=0; i<101; i++)
+        if(number.num[i] != '0') break; //Bỏ qua các số 0 từ đầu mảng cho tới khi gặp số khác 0 đầu tiên
 
-    for(int i = start; i<101; i++)
-        cout << number.num[i];
+    for(int j = i; j<101; j++)
+        cout << number.num[j]; //In ra các số khác 0 còn lại cho tới hết mảng
 }
 
 int main(){
